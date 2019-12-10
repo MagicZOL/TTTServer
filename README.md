@@ -9,7 +9,7 @@
 ## 회원가입
 신규유저 등록
 ### 요청
-> [POST] /users/singup
+> [POST] /users/signup
 
 전달값
 <pre>
@@ -39,7 +39,7 @@
 ## 로그인
 아이디, 패스워드로 로그인
 ### 요청
-> [POST] /users/singin
+> [POST] /users/signin
 
 전달값
 <pre>
