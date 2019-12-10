@@ -19,14 +19,22 @@
   'name' : '홍길동'
 }
 </pre>
-form-data 샘플
 
-|키|값|
-|---|---|
-|username|hongildong|
-|password|hong123|
-|name|홍길동|
 ### 결과
+#### 성공
+<pre>
+{
+  '_id' : '1234567890'
+  'username' : 'hongildong'
+  'name' : '홍길동'
+}
+</pre>
+#### 실패
+<pre>
+{
+  'message' : '400 Bad Request'
+}
+</pre>
 
 ## 로그인
 ### 요청
