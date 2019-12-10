@@ -19,6 +19,13 @@
   'name' : '홍길동'
 }
 </pre>
+form-data 샘플
+
+|키|값|
+|---|---|
+|username|hongildong|
+|password|hong123|
+|name|홍길동|
 ### 결과
 
 ## 로그인
