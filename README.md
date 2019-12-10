@@ -24,8 +24,8 @@
 #### 성공
 <pre>
 {
-  '_id' : '1234567890'
-  'username' : 'hongildong'
+  '_id' : '1234567890',
+  'username' : 'hongildong',
   'name' : '홍길동'
 }
 </pre>
@@ -37,6 +37,30 @@
 </pre>
 
 ## 로그인
+아이디, 패스워드로 로그인
 ### 요청
+> [POST] /users/singin
 
+전달값
+<pre>
+{
+  'username' : 'hongildong',
+  'password' : 'hong1234'
+}
+</pre>
 ### 결과
+#### 성공
+<pre>
+{
+  'id' : '1234567890',
+  'username' : 'hongildong',
+  'password' : 'hong1234',
+  'name' : '홍길동'
+}
+</pre>
+#### 실패
+<pre>
+{
+  null
+}
+</pre>
