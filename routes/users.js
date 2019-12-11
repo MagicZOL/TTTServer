@@ -1,10 +1,11 @@
 var express = require('express');
 var router = express.Router();
+var crypto = require('crypto');
 var mongodb = require('mongodb');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-  //res.send('respond with a resource');
+  res.send('respond with a resource');
 });
 
 /*회원가입*/
@@ -26,7 +27,9 @@ router.post('/signup', function(req , res, next)
   if(validate == false)
   {
     res.json({message : '400 Bad Request'});
+    return;
   }
+
   //db가 잘 동작하고 있다면....
   var usersCollection = db.collection("users");
 
@@ -34,7 +37,7 @@ router.post('/signup', function(req , res, next)
   //존재하면 insert 금지
   //존재하지 않으면 insert 실행
 
-  usersCollection.count({'username' : username}, function(err, result) {
+  usersCollection.count({username : username}, function(err, result) {
     if(err) throw(err);
     
     if(result > 0)
@@ -44,15 +47,31 @@ router.post('/signup', function(req , res, next)
     }
     else //count가 실행되고 insertOne이 실행된 후 insertOne function결과가 나온다 (비동기함수, 비동기함수, 비동기함수.....)
     {
-      usersCollection.insertOne(
-        {'username' : username, 'password' : password, 'name' : name}, function(err, result) 
+      //Hash로 암호화
+      //var cryptoPassword = crypto.createHash('sha512').update(password).digest("base64"); //암호화알고리즘, update(바꿀값), digest(인코딩)
+
+      crypto.randomBytes(64, function(err, buf)
+      {
+        const saltStr = buf.toString('base64');
+
+         //솔트, 반복횟수, 사이즈 , 알고리즘
+        crypto.pbkdf2(password, saltStr, 123418, 64, 'sha512', function(err, key)
+        {
+          const cryptoPassword = key.toString('base64');
+
+          usersCollection.insertOne({'username' : username, 'password' : cryptoPassword, 'name' : name, 'salt' : saltStr, 'score' : 0}, function(err, result) 
           {
               if (err) throw(err);
               if(result.ops.length>0)
-              res.json(result.ops[0]);
+              {
+                res.json({message : "203 OK"});
+              }
               else
               res.json({message : "503 server error"});
           });
+    
+        });
+      });
     }
   }); //해당 값이 몇개 존재하는지 알려주는 코드
   //count가 실행되고 insertOne이 실행되는 구조라서 count의 function이 동작할지 inserOne의 function이 실행될지 모른다 (비동기함수)
@@ -81,44 +100,108 @@ var userValidation = function(username, password) {
 /*로그인"*/ 
 router.post('/signin', function(req , res, next)
 {
-  
+  var username = req.body.username;
+  var password = req.body.password;
+
+  var db = req.app.get("database");
+
+  if(db == undefined)
+  {
+    res.json({message : '503 Server Error'});
+    return;
+  }
+
+  var usersCollection = db.collection('users');
+
+  usersCollection.findOne({username : username}, function(err, result)
+  {
+    if(err) throw(err);
+
+    if (result) 
+    {
+      var saltStr = result.salt;
+      crypto.pbkdf2(password, saltStr, 123418, 64, 'sha512', function(err, key)
+      {
+        var cryptoPassword = key.toString('base64');
+
+        usersCollection.findOne({username: username, password:cryptoPassword}, function(err, result)
+        {
+          if(err) throw(err);
+
+          if (result)
+          {
+            //쿠키
+            //res.cookie('user_id', result._id.toString());
+            //세션
+            req.session.user_id = result._id.toString();
+            res.json({message : "200 OK"});
+          }
+          else
+          {
+            res.json({message: '204 No Content'});
+          }
+        });
+      });
+    }
+    else
+    {
+      res.json({message: '204 No Content'});
+    }
+  });
 });
 
-//---------------------------------
-// /*회원가입*/
-// router.post('/signup', function(req , res, next)
-// {
-//   var newMember = req.body;
-//   var userid = newMember.userid;
-//   var pw = newMember.pw
-//   var nickname = newMember.nickname;
-//   var email = newMember.email
+//점수 추가
+router.post('/addscore', function(req, res, next)
+{
+  var score = req.body.score;
 
-//   var database = req.app.get("database");
-//   var users = database.collection("users");
+  var db = req.app.get('database');
 
-//   users.insertOne({"userid" : userid, "pw" : pw, "nickname" : nickname, "email" : email}, function(err, result)
-//   {
-//     if(err) throw err;
+  if (db == undefined)
+  {
+    res.json({message : '503 Server Error'});
+    return;
+  }
 
-//     res.status(200).send({"result" : "success"});
-//   });
-// });
+  //var userId = req.cookies.user_id; //로그인한 유저 쿠키 가져오기
+  var userId = req.session.user_id;
 
-// /*로그인"*/ 
-// router.post('/signin', function(req , res, next)
-// {
-//   var loginMember = req.body;
-//   var userid = loginMember.userid;
-//   var pw = loginMember.pw;
+  if(userId)
+  {
+    var usersCollection = db.collection('users');
 
-//   var database = req.app.get("database");
-//   var users = database.collection("users");
+  //찾을 대상, $set 무슨 값을 어떻게 바꿀지
+  //$inc 기존 값에 얼마나 감소 혹은 증가  될지
+    usersCollection.update({_id:mongodb.ObjectID(userId)}, {$inc : {score: score}}, function(err, result)
+    {
+      if(err) throw(err);
+      if(result)
+      {
+        res.json({message : '200 OK'});
+      }
+      else
+      {
+        res.json({message : '204 No Content'});
+      }
+    });
+  }
+  else
+  {
+    res.json({message : '401 Unauthorized'});
+  }
+});
 
-//   users.findOne( {$and: [ {"userid" : userid}, {"pw" : pw}]}, function(err, user) {
-//     if (err) res.status(500).json({error:err});
-//    res.json(user)
-//   });
-// });
+/*로그아웃*/
+router.get('/logout', function(req, res, next)
+{
+  //세션이 해제되면 
+  req.session.destroy(function(err)
+  {
+    res.clearCookie('connect.sid');
+    res.json({message : '200 OK'});
+  });
+  //res.clearCookie('user_id');
+  res.json({message : '200 OK'});
+});
 
 module.exports = router;
