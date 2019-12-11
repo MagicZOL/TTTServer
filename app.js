@@ -12,8 +12,8 @@ var usersRouter = require('./routes/users');
 var app = express();
 
 //세션초기설정
-app.use(session)
-{
+// app.use(session)
+// {
   app.use(session(
     {
       secret : 'keyboard cat', //암호화에 사용하는 문자열
@@ -21,8 +21,7 @@ app.use(session)
       saveUninitialized : true, //초기화되지 않은 정보에 대해 저장 
       sotre : new fileStore() 
     }));
-  
-}
+//}
 
 const MongoClient = require('mongodb').MongoClient;
 const uri = "mongodb+srv://ZOLadmin:admin1234@cluster0-f0ard.mongodb.net/test?retryWrites=true&w=majority";
@@ -32,7 +31,7 @@ client.connect(err => {
   const db = client.db(dbName);
   app.set("database", db);
   // perform actions on the collection object
-  client.close();
+  //client.close();
 });
 
 
