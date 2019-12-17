@@ -187,7 +187,8 @@ router.post('/addscore', function(req, res, next)
   }
   else
   {
-    res.json({message : '401 Unauthorized'});
+    //res.json({message : '401 Unauthorized'});
+    res.status(401).send('Unauthotized');
   }
 });
 
