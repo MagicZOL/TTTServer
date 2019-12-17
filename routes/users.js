@@ -8,6 +8,37 @@ router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
 
+/*유저정보*/
+router.get('/info', function(req, res, next)
+{
+  var db = req.app.get('database');
+
+  if(db==undefined)
+  {
+      res.status(503).json({message: '503 Server Error'});
+      return;
+  }
+
+  var userId = req.session.user_id;
+
+  if(userId)
+  {
+    var usersCollection = db.collection('users');
+    usersCollection.findOne({_id: mongodb.ObjectID(userId)},{projection : {_id : false, name : true, score : true}}, function(err, result)
+    {
+      if(err) throw(err);
+      if(result)
+      {
+        res.status(200).json({message : result});
+      }
+      else
+      {
+        res.status(200).json({message : 'No Content'});
+      }
+    });
+  }
+});
+
 /*회원가입*/
 router.post('/signup', function(req , res, next)
 {
@@ -64,10 +95,11 @@ router.post('/signup', function(req , res, next)
               if (err) throw(err);
               if(result.ops.length>0)
               {
-                res.json({message : "203 OK"});
+                req.session.user_id = result.insertedId.toString();
+                res.status(200).json({message : "OK"});
               }
               else
-              res.json({message : "503 server error"});
+              res.status(503).json({message : "503 server error"});
           });
     
         });
