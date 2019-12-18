@@ -29,7 +29,8 @@ router.get('/info', function(req, res, next)
       if(err) throw(err);
       if(result)
       {
-        res.status(200).json({message : result});
+        var resultStr = JSON.stringify(result);
+        res.status(200).json({message : resultStr});
       }
       else
       {
@@ -96,7 +97,11 @@ router.post('/signup', function(req , res, next)
               if(result.ops.length>0)
               {
                 req.session.user_id = result.insertedId.toString();
-                res.status(200).json({message : "OK"});
+
+                var resultObj = {name:name, score:0};
+                var resultStr = JSON.stringify(resultObj);
+
+                res.status(200).json({message: resultStr});
               }
               else
               res.status(503).json({message : "503 server error"});
@@ -156,21 +161,24 @@ router.post('/signin', function(req , res, next)
       {
         var cryptoPassword = key.toString('base64');
 
-        usersCollection.findOne({username: username, password:cryptoPassword}, function(err, result)
+        usersCollection.findOne({username: username, password:cryptoPassword}, {projection : {name : true, score : true}}, function(err, result)
         {
           if(err) throw(err);
 
           if (result)
           {
-            //쿠키
-            //res.cookie('user_id', result._id.toString());
             //세션
             req.session.user_id = result._id.toString();
-            res.json({message : "200 OK"});
+            var resultObj = {'name':result.name, 'score':result.score};
+            var resultStr = JSON.stringify(resultObj);
+            res.status(200).json({message : resultStr});
+
+            //쿠키
+            //res.cookie('user_id', result._id.toString());
           }
           else
           {
-            res.json({message: '204 No Content'});
+            res.status(204).json({message: '204 No Content'});
           }
         });
       });
@@ -191,7 +199,7 @@ router.post('/addscore', function(req, res, next)
 
   if (db == undefined)
   {
-    res.json({message : '503 Server Error'});
+    res.status(503).json({message : '503 Server Error'});
     return;
   }
 
@@ -204,16 +212,20 @@ router.post('/addscore', function(req, res, next)
 
   //찾을 대상, $set 무슨 값을 어떻게 바꿀지
   //$inc 기존 값에 얼마나 감소 혹은 증가  될지
-    usersCollection.update({_id:mongodb.ObjectID(userId)}, {$inc : {score: score}}, function(err, result)
+    usersCollection.findOneAndUpdate({_id:mongodb.ObjectID(userId)}, {$inc : {score: score}},{returnOriginal:false}, function(err, result)
     {
       if(err) throw(err);
+
+      var resultObj = {name : result.value.name, score : result.value.score};
+      var resultStr = JSON.stringify(resultObj);
+
       if(result)
       {
-        res.json({message : '200 OK'});
+        res.status(200).json({message : resultStr});
       }
       else
       {
-        res.json({message : '204 No Content'});
+        res.status(204).json({message : '204 No Content'});
       }
     });
   }
@@ -231,7 +243,7 @@ router.get('/logout', function(req, res, next)
   req.session.destroy(function(err)
   {
     res.clearCookie('connect.sid');
-    res.json({message : '200 OK'});
+    res.status(200).json({message : '200 OK'});
   });
   //res.clearCookie('user_id');
   res.json({message : '200 OK'});
