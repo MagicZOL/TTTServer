@@ -38,6 +38,10 @@ router.get('/info', function(req, res, next)
       }
     });
   }
+  else
+  {
+    res.status(401).json({message : 'Unauthotized'});
+  }
 });
 
 /*회원가입*/
