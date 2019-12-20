@@ -167,11 +167,14 @@ router.post('/signin', function(req , res, next)
 
           if (result)
           {
-            //세션
-            req.session.user_id = result._id.toString();
-            var resultObj = {'name':result.name, 'score':result.score};
-            var resultStr = JSON.stringify(resultObj);
-            res.status(200).json({message : resultStr});
+            req.session.regenerate(function(err)
+            {
+              //세션
+              req.session.user_id = result._id.toString();
+              var resultObj = {'name':result.name, 'score':result.score};
+              var resultStr = JSON.stringify(resultObj);
+              res.status(200).json({message : resultStr});
+            });
 
             //쿠키
             //res.cookie('user_id', result._id.toString());
