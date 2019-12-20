@@ -34,7 +34,7 @@ router.get('/info', function(req, res, next)
       }
       else
       {
-        res.status(200).json({message : 'No Content'});
+        res.status(401).json({message : 'Unauthotized'});
       }
     });
   }
@@ -51,14 +51,14 @@ router.post('/signup', function(req , res, next)
   
   if(db == undefined)
   {
-    res.json({message : '503 Server Error'});
+    res.status(503).json({message : '503 Server Error'});
     return;
   }
 
   var validate = userValidation(username, password);
   if(validate == false)
   {
-    res.json({message : '400 Bad Request'});
+    res.status(400).json({message : '400 Bad Request'});
     return;
   }
 
@@ -74,7 +74,7 @@ router.post('/signup', function(req , res, next)
     
     if(result > 0)
     {
-      res.json({message : '400 Bad Request'});
+      res.status(400).json({message : '400 Bad Request'});
       return;
     }
     else //count가 실행되고 insertOne이 실행된 후 insertOne function결과가 나온다 (비동기함수, 비동기함수, 비동기함수.....)
@@ -188,7 +188,7 @@ router.post('/signin', function(req , res, next)
     }
     else
     {
-      res.json({message: '204 No Content'});
+      res.status(204).json({message: '204 No Content'});
     }
   });
 });
@@ -249,7 +249,7 @@ router.get('/logout', function(req, res, next)
     res.status(200).json({message : '200 OK'});
   });
   //res.clearCookie('user_id');
-  res.json({message : '200 OK'});
+  res.status(200).json({message : '200 OK'});
 });
 
 module.exports = router;
