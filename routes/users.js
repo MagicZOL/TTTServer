@@ -15,7 +15,7 @@ router.get('/info', function(req, res, next)
 
   if(db==undefined)
   {
-      res.status(503).json({message: '503 Server Error'});
+      res.status(503).json({message: '서버 오류가 발생했습니다.'});
       return;
   }
 
@@ -34,13 +34,13 @@ router.get('/info', function(req, res, next)
       }
       else
       {
-        res.status(401).json({message : 'Unauthotized'});
+        res.status(401).json({message : '로그인이 필요합니다.'});
       }
     });
   }
   else
   {
-    res.status(401).json({message : 'Unauthotized'});
+    res.status(401).json({message : '로그인이 필요합니다.'});
   }
 });
 
@@ -55,14 +55,14 @@ router.post('/signup', function(req , res, next)
   
   if(db == undefined)
   {
-    res.status(503).json({message : '503 Server Error'});
+    res.status(503).json({message : '서버 오류가 발생했습니다.'});
     return;
   }
 
   var validate = userValidation(username, password);
   if(validate == false)
   {
-    res.status(400).json({message : '400 Bad Request'});
+    res.status(400).json({message : '유효하지 않은 정보를 입력했습니다.'});
     return;
   }
 
@@ -78,7 +78,7 @@ router.post('/signup', function(req , res, next)
     
     if(result > 0)
     {
-      res.status(400).json({message : '400 Bad Request'});
+      res.status(400).json({message : '이미 동일한 유저가 존재합니다.'});
       return;
     }
     else //count가 실행되고 insertOne이 실행된 후 insertOne function결과가 나온다 (비동기함수, 비동기함수, 비동기함수.....)
@@ -108,7 +108,7 @@ router.post('/signup', function(req , res, next)
                 res.status(200).json({message: resultStr});
               }
               else
-              res.status(503).json({message : "503 server error"});
+              res.status(503).json({message : "서버 오류가 발생했습니다."});
           });
     
         });
@@ -148,7 +148,7 @@ router.post('/signin', function(req , res, next)
 
   if(db == undefined)
   {
-    res.json({message : '503 Server Error'});
+    res.status(503).json({message : '서버 오류가 발생했습니다.'});
     return;
   }
 
@@ -185,14 +185,14 @@ router.post('/signin', function(req , res, next)
           }
           else
           {
-            res.status(204).json({message: '204 No Content'});
+            res.status(404).json({message: '비밀번호가 틀렸습니다.'});
           }
         });
       });
     }
     else
     {
-      res.status(204).json({message: '204 No Content'});
+      res.status(404).json({message: '해당 계정이 없습니다.'});
     }
   });
 });
@@ -206,7 +206,7 @@ router.post('/addscore', function(req, res, next)
 
   if (db == undefined)
   {
-    res.status(503).json({message : '503 Server Error'});
+    res.status(503).json({message : '서버 오류가 발생했습니다.'});
     return;
   }
 
@@ -232,14 +232,14 @@ router.post('/addscore', function(req, res, next)
       }
       else
       {
-        res.status(204).json({message : '204 No Content'});
+        res.status(503).json({message : '서버 오류가 발생핬습니다.'});
       }
     });
   }
   else
   {
     //res.json({message : '401 Unauthorized'});
-    res.status(401).send('Unauthotized');
+    res.status(401).send('로그인이 필요합니다.');
   }
 });
 
