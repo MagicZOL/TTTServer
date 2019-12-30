@@ -128,6 +128,7 @@ module.exports = function(server)
                 // }
             });
 
+            //셀을 선택했을 때
             socket.on('select', function(data)
             {
                 if(!data) return;
@@ -140,14 +141,30 @@ module.exports = function(server)
                 }
             });
 
+            //클라이언트가 승리했을 때
             socket.on('win', function(data)
             {
+                if(!data) return;
+                var index = data.index;
+                var roomId = data.roomId;
 
+                if(index > -1 && roomId)
+                {
+                    socket.to(roomId).emit('lose', {index : index});
+                }
             });
             
+            //클라이언트가 무승부
             socket.on('tie', function(data)
             {
-                
+                if(!data) return;
+                var index = data.index;
+                var roomId = data.roomId;
+
+                if(index > -1 && roomId)
+                {
+                    socket.to(roomId).emit('tie', {index : index});
+                }
             });
             //테스트
             //메시지를 보낼때 emit라는 함수를 사용한다 socket.emit("이벤트이름", "객체(키, 값")
@@ -159,9 +176,27 @@ module.exports = function(server)
             //     console.log(data.msg);
             // });
 
+            //게임에서 나갔을 때
             socket.on('disconnect', function(reason)
             {
                 console.log("disconnect");
+
+                for ( var i =0; i<rooms.length; i++)
+                {
+                    var client = rooms[i].clients.find(client => client.clientId == socket.id);
+
+                    if(client)
+                    {
+                        var clientIndex = rooms[i].clients.indexof(client);
+                        rooms[i].clients.splice(clientIndex, 1); //splice : 몇번째의 얼마만큼을 삭제할것인가?
+
+                        if(rooms[i].clients.length ==0)
+                        {
+                            //
+
+                        }
+                    }
+                }
             });
         });
 }

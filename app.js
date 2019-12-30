@@ -24,34 +24,34 @@ var app = express();
 //}
 
 //mongodb 해외서버 연결
-// const MongoClient = require('mongodb').MongoClient;
-// const uri = "mongodb+srv://ZOLadmin:admin1234@cluster0-f0ard.mongodb.net/test?retryWrites=true&w=majority";
-// const client = new MongoClient(uri, { useNewUrlParser: true });
-// client.connect(err => {
-//   const dbName = 'Tictactoc';
-//   const db = client.db(dbName);
-//   app.set("database", db);
-  // perform actions on the collection object
-  //client.close();
-// });
-
-//mongodb 로컬 연걸
 const MongoClient = require('mongodb').MongoClient;
-const assert = require('assert');
- 
-// Connection URL
-const url = 'mongodb://localhost:27017';
-// Database Name
-const dbName = 'Tictactoc';
-// Use connect method to connect to the server
-MongoClient.connect(url, function(err, client) {
-  assert.equal(null, err);
-  console.log("Connected successfully to server");
+const uri = "mongodb+srv://ZOLadmin:admin1234@cluster0-f0ard.mongodb.net/test?retryWrites=true&w=majority";
+const client = new MongoClient(uri, { useNewUrlParser: true });
+client.connect(err => {
+  const dbName = 'Tictactoc';
   const db = client.db(dbName);
   app.set("database", db);
+  //perform actions on the collection object
+  client.close();
+});
+
+//mongodb 로컬 연걸
+// const MongoClient = require('mongodb').MongoClient;
+// const assert = require('assert');
+ 
+// // Connection URL
+// const url = 'mongodb://localhost:27017';
+// // Database Name
+// const dbName = 'Tictactoc';
+// // Use connect method to connect to the server
+// MongoClient.connect(url, function(err, client) {
+//   assert.equal(null, err);
+//   console.log("Connected successfully to server");
+//   const db = client.db(dbName);
+//   app.set("database", db);
 
   //client.close();
-});
+// });
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
