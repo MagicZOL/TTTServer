@@ -185,15 +185,15 @@ module.exports = function(server)
                 {
                     var client = rooms[i].clients.find(client => client.clientId == socket.id);
 
-                    if(client)
+                    if (client) 
                     {
-                        var clientIndex = rooms[i].clients.indexof(client);
-                        rooms[i].clients.splice(clientIndex, 1); //splice : 몇번째의 얼마만큼을 삭제할것인가?
-
-                        if(rooms[i].clients.length ==0)
+                        var clientIndex = rooms[i].clients.indexOf(client);
+                        rooms[i].clients.splice(clientIndex, 1);
+    
+                        if (rooms[i].clients.length == 0) 
                         {
-                            //
-
+                            var roomIndex = rooms.indexOf(rooms[i]);
+                            rooms.splice(roomIndex, 1);
                         }
                     }
                 }
